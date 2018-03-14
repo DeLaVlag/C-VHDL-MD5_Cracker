@@ -1,6 +1,6 @@
 #include "main.h"
 
-uint32_t h0, h1, h2, h3;
+static uint32_t h0 = 0x67452301, h1 = 0xefcdab89, h2 = 0x98badcfe, h3 = 0x10325476;
 
 #define S11 7
 #define S12 12
@@ -63,10 +63,7 @@ void md5_hasher(uint8_t input[64]){
 #pragma HLS INTERFACE ap_memory port=input
 
 	//IHVS0
-	h0 = 0x67452301;
-	h1 = 0xefcdab89;
-	h2 = 0x98badcfe;
-	h3 = 0x10325476;
+
 
 	uint32_t a = h0, b = h1, c = h2, d = h3, x[16];
 	unsigned int i, j;
@@ -156,18 +153,18 @@ void md5_hasher(uint8_t input[64]){
 
 }
 
-//void md5_printer(){
-//	uint32_t t_h0 = 0;
-//	uint32_t t_h1 = 0;
-//	uint32_t t_h2 = 0;
-//	uint32_t t_h3 = 0;
-//	unsigned int i;
-//
-//	t_h0 = ((h0 & 0xFF)<<3*8) | ((h0 & 0xFF00) << 8) | ((h0 & 0xFF0000) >> 8) | ((h0 & 0xFF000000) >> 3*8);
-//	t_h1 = ((h1 & 0xFF)<<3*8) | ((h1 & 0xFF00) << 8) | ((h1 & 0xFF0000) >> 8) | ((h1 & 0xFF000000) >> 3*8);
-//	t_h2 = ((h2 & 0xFF)<<3*8) | ((h2 & 0xFF00) << 8) | ((h2 & 0xFF0000) >> 8) | ((h2 & 0xFF000000) >> 3*8);
-//	t_h3 = ((h3 & 0xFF)<<3*8) | ((h3 & 0xFF00) << 8) | ((h3 & 0xFF0000) >> 8) | ((h3 & 0xFF000000) >> 3*8);
-//
-//
-//	printf("hash=%08x%08x%08x%08x\n",t_h0, t_h1, t_h2, t_h3);
-//}
+void md5_printer(){
+	uint32_t t_h0 = 0;
+	uint32_t t_h1 = 0;
+	uint32_t t_h2 = 0;
+	uint32_t t_h3 = 0;
+	unsigned int i;
+
+	t_h0 = ((h0 & 0xFF)<<3*8) | ((h0 & 0xFF00) << 8) | ((h0 & 0xFF0000) >> 8) | ((h0 & 0xFF000000) >> 3*8);
+	t_h1 = ((h1 & 0xFF)<<3*8) | ((h1 & 0xFF00) << 8) | ((h1 & 0xFF0000) >> 8) | ((h1 & 0xFF000000) >> 3*8);
+	t_h2 = ((h2 & 0xFF)<<3*8) | ((h2 & 0xFF00) << 8) | ((h2 & 0xFF0000) >> 8) | ((h2 & 0xFF000000) >> 3*8);
+	t_h3 = ((h3 & 0xFF)<<3*8) | ((h3 & 0xFF00) << 8) | ((h3 & 0xFF0000) >> 8) | ((h3 & 0xFF000000) >> 3*8);
+
+
+	printf("hash=%08x%08x%08x%08x\n",t_h0, t_h1, t_h2, t_h3);
+}
