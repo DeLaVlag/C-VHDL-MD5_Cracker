@@ -1,7 +1,10 @@
 #include "hashtest.h"
 #include <math.h>
 
+
 int main() {
+
+//	uint32_t h0 = 0x67452301, h1 = 0xefcdab89, h2 = 0x98badcfe, h3 = 0x10325476;
 
 	uint8_t msg2Hash[] =
 			"Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow Hello Yellow";
