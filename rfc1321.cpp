@@ -1,7 +1,7 @@
 #include "main.h"
 
 //uint32_t h0 = 0x67452301, h1 = 0xefcdab89, h2 = 0x98badcfe, h3 = 0x10325476;
-//static uint32_t h0 , h1 , h2, h3;
+uint32_t h0 , h1 , h2, h3;
 //static uint32_t h[4]={0x67452301,0xefcdab89,0x98badcfe,0x10325476};
 //#pragma HLS RESOURCE variable=h core=RAM_2P_BRAM
 
@@ -60,37 +60,40 @@ Rotation is separate from addition to prevent recomputation.
   }
 
 
-void md5_hasher(uint8_t input[64]){
+void md5_hasher(uint8_t input_r[64]){
+//void md5_hasher(uint8_t input_r[64], uint32_t *out0, uint32_t *out1, uint32_t *out2, uint32_t *out3){
 
-#pragma HLS INTERFACE ap_memory port=input
-#pragma HLS PIPELINE
-//#pragma HLS RESOURCE variable=input core=RAM_2P_BRAM
-//#pragma HLS DEPENDENCE variable=input array inter false
-
-//static uint32_t h[4];
-//h[0] = 0x67452301, h[1] = 0xefcdab89, h[2] = 0x98badcfe, h[3] = 0x10325476;
-//static uint32_t h0 = h0t, h1 = h1t, h2 = h2t, h3 = h3t;
-static uint32_t h[4]={0x67452301,0xefcdab89,0x98badcfe,0x10325476};
-#pragma HLS RESOURCE variable=h core=RAM_2P_BRAM
-	//IHVS0
-//	h0 = 0x67452301;
-//	h1 = 0xefcdab89;
-//	h2 = 0x98badcfe;
-//	h3 = 0x10325476;
+#pragma HLS INTERFACE ap_memory port=input_r
+//#pragma HLS interface s_axilite bundle=add_io port=out0
+//#pragma HLS interface s_axilite bundle=add_io port=out1
+//#pragma HLS interface s_axilite bundle=add_io port=out2
+//#pragma HLS interface s_axilite bundle=add_io port=out3
 //
-//	h0 = h0t;
-//	h1 = h1t;
-//	h2 = h2t;
-//	h3 = h3t;
+//#pragma HLS interface s_axilite bundle=add_io port=h0
+//#pragma HLS interface s_axilite bundle=add_io port=h1
+//#pragma HLS interface s_axilite bundle=add_io port=h2
+//#pragma HLS interface s_axilite bundle=add_io port=h3
 
-	uint32_t a = h[0], b = h[1], c = h[2], d = h[3], x[16];
+#pragma HLS PIPELINE
+//#pragma HLS RESOURCE variable=input_r core=RAM_1P_BRAM metadata="-bus_bundle BUS_CTRL"
+//#pragma HLS DEPENDENCE variable=input_r array inter false
+
+// uint32_t h0 , h1 , h2, h3;
+//static uint32_t h[4]={0x67452301,0xefcdab89,0x98badcfe,0x10325476};
+
+	//IHVS0
+	h0 = 0x67452301;
+	h1 = 0xefcdab89;
+	h2 = 0x98badcfe;
+	h3 = 0x10325476;
+
+	uint32_t a = h0, b = h1, c = h2, d = h3, x[16];
+//	uint32_t a = h[0], b = h[1], c = h[2], d = h[3], x[16];
 	unsigned int i, j;
 
-//#pragma HLS RESOURCE variable=x core=RAM_2P_BRAM
-
 	for (i = 0, j = 0; j < 64; i++, j += 4)
-		x[i] = ((uint32_t)input[j]) | (((uint32_t)input[j+1]) << 8) |
-			(((uint32_t)input[j+2]) << 16) | (((uint32_t)input[j+3]) << 24);
+		x[i] = ((uint32_t)input_r[j]) | (((uint32_t)input_r[j+1]) << 8) |
+			(((uint32_t)input_r[j+2]) << 16) | (((uint32_t)input_r[j+3]) << 24);
 
 	/* Round 1 */
 	FF (a, b, c, d, x[ 0], S11, 0xd76aa478); /* 1 */
@@ -164,40 +167,16 @@ static uint32_t h[4]={0x67452301,0xefcdab89,0x98badcfe,0x10325476};
 	II (c, d, a, b, x[ 2], S43, 0x2ad7d2bb); /* 63 */
 	II (b, c, d, a, x[ 9], S44, 0xeb86d391); /* 64 */
 
-	h[0] += a;
-	h[1] += b;
-	h[2] += c;
-	h[3] += d;
+	h0 += a;
+	h1 += b;
+	h2 += c;
+	h3 += d;
 
-////    md5_printer();
-//	uint32_t t_h0 = 0;
-//	uint32_t t_h1 = 0;
-//	uint32_t t_h2 = 0;
-//	uint32_t t_h3 = 0;
-////	unsigned int i;
-//
-//	t_h0 = ((h[0] & 0xFF)<<3*8) | ((h[0] & 0xFF00) << 8) | ((h[0] & 0xFF0000) >> 8) | ((h[0] & 0xFF000000) >> 3*8);
-//	t_h1 = ((h[1] & 0xFF)<<3*8) | ((h[1] & 0xFF00) << 8) | ((h[1] & 0xFF0000) >> 8) | ((h[1] & 0xFF000000) >> 3*8);
-//	t_h2 = ((h[2] & 0xFF)<<3*8) | ((h[2] & 0xFF00) << 8) | ((h[2] & 0xFF0000) >> 8) | ((h[2] & 0xFF000000) >> 3*8);
-//	t_h3 = ((h[3] & 0xFF)<<3*8) | ((h[3] & 0xFF00) << 8) | ((h[3] & 0xFF0000) >> 8) | ((h[3] & 0xFF000000) >> 3*8);
-//
-//
-//	printf("hash=%08x%08x%08x%08x\n",t_h0, t_h1, t_h2, t_h3);
+//	*out0 = h0;
+//	*out1 = h1;
+//	*out2 = h2;
+//	*out3 = h3;
 
 }
-//
-//void md5_printer(){
-//	uint32_t t_h0 = 0;
-//	uint32_t t_h1 = 0;
-//	uint32_t t_h2 = 0;
-//	uint32_t t_h3 = 0;
-//	unsigned int i;
-//
-//	t_h0 = ((h[0] & 0xFF)<<3*8) | ((h[0] & 0xFF00) << 8) | ((h[0] & 0xFF0000) >> 8) | ((h[0] & 0xFF000000) >> 3*8);
-//	t_h1 = ((h[1] & 0xFF)<<3*8) | ((h[1] & 0xFF00) << 8) | ((h[1] & 0xFF0000) >> 8) | ((h[1] & 0xFF000000) >> 3*8);
-//	t_h2 = ((h[2] & 0xFF)<<3*8) | ((h[2] & 0xFF00) << 8) | ((h[2] & 0xFF0000) >> 8) | ((h[2] & 0xFF000000) >> 3*8);
-//	t_h3 = ((h[3] & 0xFF)<<3*8) | ((h[3] & 0xFF00) << 8) | ((h[3] & 0xFF0000) >> 8) | ((h[3] & 0xFF000000) >> 3*8);
-//
-//
-//	printf("hash=%08x%08x%08x%08x\n",t_h0, t_h1, t_h2, t_h3);
-//}
+
+

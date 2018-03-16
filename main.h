@@ -2,5 +2,3 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-
-void md5_printer();
