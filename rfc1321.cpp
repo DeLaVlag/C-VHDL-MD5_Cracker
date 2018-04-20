@@ -1,9 +1,7 @@
 #include "main.h"
 
-uint32_t h0 , h1 , h2, h3;
+uint32_t h0,h1,h2,h3;
 static int rnd_seed=1;
-
-//static uint32_t h[4]={0x67452301,0xefcdab89,0x98badcfe,0x10325476};
 
 #define S11 7
 #define S12 12
@@ -59,46 +57,13 @@ Rotation is separate from addition to prevent recomputation.
  (a) += (b); \
   }
 
-void md5_hasher(uint32_t *o0,uint32_t *o1,uint32_t *o2,uint32_t *o3,
-		uint32_t *o4,uint32_t *o5,uint32_t *o6,uint32_t *o7,uint32_t *o8,
-		uint32_t *o9,uint32_t *o10,uint32_t *o11,uint32_t *o12,
-		uint32_t *o13,uint32_t *o14,uint32_t *o15){
-//void md5_hasher(void){
-//void md5_hasher(uint8_t msg2Hash[64], uint32_t *out0, uint32_t *out1, uint32_t *out2, uint32_t *out3){
+void md5_hasher(uint32_t x[16], uint8_t msgColl){
 
-#pragma HLS INTERFACE ap_ctrl_none port=return
-//#pragma HLS INTERFACE ap_memory port=msg2Hash
-//#pragma HLS INTERFACE m_axi port=msg2Hash
-
-//#pragma HLS interface s_axilite bundle=add_io port=out0
-//#pragma HLS interface s_axilite bundle=add_io port=out1
-//#pragma HLS interface s_axilite bundle=add_io port=out2
-//#pragma HLS interface s_axilite bundle=add_io port=out3
-
-#pragma HLS interface s_axilite bundle=output port=o0
-#pragma HLS interface s_axilite bundle=output port=o1
-#pragma HLS interface s_axilite bundle=output port=o2
-#pragma HLS interface s_axilite bundle=output port=o3
-#pragma HLS interface s_axilite bundle=output port=o4
-#pragma HLS interface s_axilite bundle=output port=o5
-#pragma HLS interface s_axilite bundle=output port=o6
-#pragma HLS interface s_axilite bundle=output port=o7
-#pragma HLS interface s_axilite bundle=output port=o8
-#pragma HLS interface s_axilite bundle=output port=o9
-#pragma HLS interface s_axilite bundle=output port=o10
-#pragma HLS interface s_axilite bundle=output port=o11
-#pragma HLS interface s_axilite bundle=output port=o12
-#pragma HLS interface s_axilite bundle=output port=o13
-#pragma HLS interface s_axilite bundle=output port=o14
-#pragma HLS interface s_axilite bundle=output port=o15
-
-
+#pragma HLS INTERFACE s_axilite port=return
+#pragma HLS INTERFACE s_axilite port=x
+#pragma HLS INTERFACE s_axilite port=msgColl
 //#pragma HLS PIPELINE
-//#pragma HLS RESOURCE variable=msg2Hash core=RAM_1P_BRAM metadata="-bus_bundle BUS_CTRL"
-//#pragma HLS DEPENDENCE variable=msg2Hash array inter false
 
-// uint32_t h0 , h1 , h2, h3;
-//static uint32_t h[4]={0x67452301,0xefcdab89,0x98badcfe,0x10325476};
 
 	//IHVS0
 	h0 = 0x67452301;
@@ -106,47 +71,32 @@ void md5_hasher(uint32_t *o0,uint32_t *o1,uint32_t *o2,uint32_t *o3,
 	h2 = 0x98badcfe;
 	h3 = 0x10325476;
 
-	//original
-//	uint32_t hash2Crack1 = 0x3f730df4;
-//	uint32_t hash2Crack2 = 0xbc2ec291;
-//	uint32_t hash2Crack3 = 0xa0d6e5d9;
-//	uint32_t hash2Crack4 = 0x73a78511;
-
 	//reversed for ez comparison
 	uint32_t hash2Crack0 = 0xf40d733f;
 	uint32_t hash2Crack1 = 0x91c22ebc;
 	uint32_t hash2Crack2 = 0xd9e5d6a0;
 	uint32_t hash2Crack3 = 0x1185a773;
 
-	uint8_t msg2Hash[64] = "I just need a message that's 64B long such to hash 512b";
-	msg2Hash[55]=0x80;
-	msg2Hash[56]=0xB8;
-	msg2Hash[57]=1;
-	msg2Hash[58]=0;
-	msg2Hash[59]=0;
-	msg2Hash[60]=0;
-	msg2Hash[61]=0;
-	msg2Hash[62]=0;
-	msg2Hash[63]=0;
+//	uint8_t msg2Hash[64] = "I just need a message that's 64B long such to hash 512b";
 
-	bool hashFound = 0;
-	uint64_t hashcounter=MAX64;
+//	uint32_t units=1;
 
-	uint32_t a = h0, b = h1, c = h2, d = h3, x[16];
+	uint32_t a = h0, b = h1, c = h2, d = h3;//, x[16];
 
-	//random message generation for birthdaying
-	for (uint8_t i=0;i<55;i++){
-		int x = rand_int()%256;
-		msg2Hash[i]=x;
-//		printf("%d ",msg2Hash[i]);
-		set_rnd_seed(x);
-	}
+//	for(uint8_t hw=0;hw<units;hw++){
 
-	while(hashcounter--&&hashFound==0){
-//#pragma HLS PIPELINE
-		for (uint8_t i = 0, j = 0; j < 64; i++, j += 4)
-			x[i] = ((uint32_t)msg2Hash[j]) | (((uint32_t)msg2Hash[j+1]) << 8) |
-				(((uint32_t)msg2Hash[j+2]) << 16) | (((uint32_t)msg2Hash[j+3]) << 24);
+		for (uint8_t i=0;i<14;i++){
+			int randval = rand_int();
+			x[i]=randval;
+//			printf("%08x ",x[i]);
+		}
+
+		//setting the last part of msg with 1 and sizeof, with reversal
+		x[13]&=~(0xff000000);
+		x[13]|=(1<<31);
+		x[14]=0x1B8;
+		x[15]=0;
+
 
 		/* Round 1 */
 		FF (a, b, c, d, x[ 0], S11, 0xd76aa478); /* 1 */
@@ -225,63 +175,53 @@ void md5_hasher(uint32_t *o0,uint32_t *o1,uint32_t *o2,uint32_t *o3,
 		h2 += c;
 		h3 += d;
 
-	//	*out0 = h0;
-	//	*out1 = h1;
-	//	*out2 = h2;
-	//	*out3 = h3;
+		//reversing done by software
+//		x[14] = ((h0 & 0xFF)<<3*8) | ((h0 & 0xFF00) << 8) | ((h0 & 0xFF0000) >> 8) | ((h0 & 0xFF000000) >> 3*8);
+//		x[15] = ((h1 & 0xFF)<<3*8) | ((h1 & 0xFF00) << 8) | ((h1 & 0xFF0000) >> 8) | ((h1 & 0xFF000000) >> 3*8);
+//		x[16] = ((h2 & 0xFF)<<3*8) | ((h2 & 0xFF00) << 8) | ((h2 & 0xFF0000) >> 8) | ((h2 & 0xFF000000) >> 3*8);
+//		x[17] = ((h3 & 0xFF)<<3*8) | ((h3 & 0xFF00) << 8) | ((h3 & 0xFF0000) >> 8) | ((h3 & 0xFF000000) >> 3*8);
+//
+//		printf("\nhash=%08x%08x%08x%08x\n",x[14],x[15],x[16],x[17]);
 
-		uint32_t t_h0 = 0;
-		uint32_t t_h1 = 0;
-		uint32_t t_h2 = 0;
-		uint32_t t_h3 = 0;
+		//reversed is original message!
+//		printf("\n reversed message:\n");
+//		//everything upto the 0x80 is hashed. check online for hexhasher.
+//		for (uint8_t i=0;i<16;i++){
+//			printf("%08x",((x[i] & 0xFF)<<3*8) | ((x[i] & 0xFF00) << 8) | ((x[i] & 0xFF0000) >> 8) | ((x[i] & 0xFF000000) >> 3*8));
+//		}
 
-		t_h0 = ((h0 & 0xFF)<<3*8) | ((h0 & 0xFF00) << 8) | ((h0 & 0xFF0000) >> 8) | ((h0 & 0xFF000000) >> 3*8);
-		t_h1 = ((h1 & 0xFF)<<3*8) | ((h1 & 0xFF00) << 8) | ((h1 & 0xFF0000) >> 8) | ((h1 & 0xFF000000) >> 3*8);
-		t_h2 = ((h2 & 0xFF)<<3*8) | ((h2 & 0xFF00) << 8) | ((h2 & 0xFF0000) >> 8) | ((h2 & 0xFF000000) >> 3*8);
-		t_h3 = ((h3 & 0xFF)<<3*8) | ((h3 & 0xFF00) << 8) | ((h3 & 0xFF0000) >> 8) | ((h3 & 0xFF000000) >> 3*8);
-
-
-		printf("hash=%08x%08x%08x%08x\n",t_h0, t_h1, t_h2, t_h3);
-	//	printf("hash=%08x%08x%08x%08x\n",h0, h1, h2, h3);
-
+		//write outputs when hash is found
 		if (h0==hash2Crack0&&h1==hash2Crack2&&h2==hash2Crack2&&h3==hash2Crack3){
-			hashFound=1;
-			*o0=x[0];
-			*o1=x[1];
-			*o2=x[2];
-			*o3=x[3];
-			*o4=x[4];
-			*o5=x[5];
-			*o6=x[6];
-			*o7=x[7];
-			*o8=x[8];
-			*o9=x[9];
-			*o10=x[10];
-			*o11=x[11];
-			*o12=x[12];
-			*o13=x[13];
-			*o14=x[14];
-			*o15=x[15];
+			msgColl=255;
 		}
-	}
+//	}
 }
 
-void set_rnd_seed (uint32_t new_seed)
+uint32_t need_seed (void)
 {
-    rnd_seed = new_seed;
+	unsigned int hi,lo;
+
+	hi = 16807 * (rnd_seed >> 16);
+	lo = 16807 * (rnd_seed & 0xFFFF);
+	lo += (hi & 0x7FFF) << 16;
+	lo += hi >> 15;
+	if (lo > 2147483647)
+		lo -= 2147483647;
+	rnd_seed = lo;
+
+    return rnd_seed;
 }
 
-int rand_int (void)
+uint32_t rand_int (void)
 {
     unsigned int hi,lo;
 
-    hi = 16807 * (rnd_seed >> 16);
-    lo = 16807 * (rnd_seed & 0xFFFF);
+    hi = 16807 * (need_seed() >> 16);
+    lo = 16807 * (need_seed() & 0xFFFF);
     lo += (hi & 0x7FFF) << 16;
     lo += hi >> 15;
     if (lo > 2147483647)
         lo -= 2147483647;
-    rnd_seed = lo;
-    return rnd_seed;
+    return lo;
 }
 

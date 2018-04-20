@@ -5,5 +5,7 @@
 
 #define MAX64 18446744073709551615
 
-int rand_int (void);
-void set_rnd_seed (uint32_t new_seed);
+unsigned int C_S_AXI_AXILITES_ADDR_WIDTH = 7;
+
+uint32_t rand_int (void);
+uint32_t need_seed (void);
