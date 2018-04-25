@@ -94,7 +94,7 @@ void md5_compress(uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, uint32_t x
 		t_number = (7*index) %16;
 		break;
 	}
-	t_function = a + x[t_number] + k[index];
+	t_function += a + x[t_number] + k[index];
 	t_function = ROTATE_LEFT(t_function,r[index]);
 
 	//Switch the inputs around a= d, b =a, c= b, d= c
