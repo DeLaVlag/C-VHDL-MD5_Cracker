@@ -6,6 +6,6 @@ int main() {
 
 	uint32_t output[16];
 	uint8_t msgColl;
-	md4_hasher(output, msgColl);
+	test();
 
 }

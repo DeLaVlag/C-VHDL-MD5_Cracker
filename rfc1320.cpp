@@ -64,18 +64,21 @@ uint32_t md4_compress(uint32_t a, uint32_t b, uint32_t c, uint32_t d,
 
 }
 
-void md4_hasher(uint32_t x[16], uint8_t msgColl) {
+void md4_hasher(uint32_t x[16], uint32_t signature[4], uint8_t msgColl) {
 
 #pragma HLS INTERFACE s_axilite port=return
 #pragma HLS INTERFACE s_axilite port=x
+#pragma HLS INTERFACE s_axilite port=signature
 #pragma HLS INTERFACE s_axilite port=msgColl
 //#pragma HLS PIPELINE
 
 //IHVS0
-	h0 = 0x67452301;
-	h1 = 0xefcdab89;
-	h2 = 0x98badcfe;
-	h3 = 0x10325476;
+	h0 = signature[0];
+	h1 = signature[1];
+	h2 = signature[2];
+	h3 = signature[3];
+
+
 
 	//reversed for ez comparison
 	uint32_t hash2Crack0 = 0xf40d733f;
@@ -105,14 +108,14 @@ void md4_hasher(uint32_t x[16], uint8_t msgColl) {
 //		x[15] = 0;
 
 		//reversed is original message!
-		printf("\n reversed message1:\n");
-		//everything upto the 0x80 is hashed. check online for hexhasher.
-		for (uint8_t i = 0; i < 16; i++) {
-			printf("%08x",
-					((x[i] & 0xFF) << 3 * 8) | ((x[i] & 0xFF00) << 8)
-							| ((x[i] & 0xFF0000) >> 8)
-							| ((x[i] & 0xFF000000) >> 3 * 8));
-		}
+		// printf("\n reversed message1:\n");
+		// //everything upto the 0x80 is hashed. check online for hexhasher.
+		// for (uint8_t i = 0; i < 16; i++) {
+		// 	printf("%08x",
+		// 			((x[i] & 0xFF) << 3 * 8) | ((x[i] & 0xFF00) << 8)
+		// 					| ((x[i] & 0xFF0000) >> 8)
+		// 					| ((x[i] & 0xFF000000) >> 3 * 8));
+		// }
 
 		compressLoop: for (int i = 0; i < 48; i++) {
 #pragma HLS PIPELINE
@@ -130,33 +133,37 @@ void md4_hasher(uint32_t x[16], uint8_t msgColl) {
 		h2 += c;
 		h3 += d;
 
-		//reversing done by software
-		h0 = ((h0 & 0xFF) << 3 * 8) | ((h0 & 0xFF00) << 8)
-				| ((h0 & 0xFF0000) >> 8) | ((h0 & 0xFF000000) >> 3 * 8);
-		h1 = ((h1 & 0xFF) << 3 * 8) | ((h1 & 0xFF00) << 8)
-				| ((h1 & 0xFF0000) >> 8) | ((h1 & 0xFF000000) >> 3 * 8);
-		h2 = ((h2 & 0xFF) << 3 * 8) | ((h2 & 0xFF00) << 8)
-				| ((h2 & 0xFF0000) >> 8) | ((h2 & 0xFF000000) >> 3 * 8);
-		h3 = ((h3 & 0xFF) << 3 * 8) | ((h3 & 0xFF00) << 8)
-				| ((h3 & 0xFF0000) >> 8) | ((h3 & 0xFF000000) >> 3 * 8);
+//		//reversing done by software
+//		h0 = ((h0 & 0xFF) << 3 * 8) | ((h0 & 0xFF00) << 8)
+//				| ((h0 & 0xFF0000) >> 8) | ((h0 & 0xFF000000) >> 3 * 8);
+//		h1 = ((h1 & 0xFF) << 3 * 8) | ((h1 & 0xFF00) << 8)
+//				| ((h1 & 0xFF0000) >> 8) | ((h1 & 0xFF000000) >> 3 * 8);
+//		h2 = ((h2 & 0xFF) << 3 * 8) | ((h2 & 0xFF00) << 8)
+//				| ((h2 & 0xFF0000) >> 8) | ((h2 & 0xFF000000) >> 3 * 8);
+//		h3 = ((h3 & 0xFF) << 3 * 8) | ((h3 & 0xFF00) << 8)
+//				| ((h3 & 0xFF0000) >> 8) | ((h3 & 0xFF000000) >> 3 * 8);
 
-		printf("\nhash=%08x%08x%08x%08x\n", h0, h1, h2, h3);
+		//printf("\nhash=%08x%08x%08x%08x\n", h0, h1, h2, h3);
 
 		//reversed is original message!
-		printf("\n reversed message2:\n");
+		//printf("\n reversed message2:\n");
 		//everything upto the 0x80 is hashed. check online for hexhasher.
-		for (uint8_t i = 0; i < 16; i++) {
-			printf("%08x",
-					((x[i] & 0xFF) << 3 * 8) | ((x[i] & 0xFF00) << 8)
-							| ((x[i] & 0xFF0000) >> 8)
-							| ((x[i] & 0xFF000000) >> 3 * 8));
-		}
+//		for (uint8_t i = 0; i < 16; i++) {
+//			printf("%08x",
+//					((x[i] & 0xFF) << 3 * 8) | ((x[i] & 0xFF00) << 8)
+//							| ((x[i] & 0xFF0000) >> 8)
+//							| ((x[i] & 0xFF000000) >> 3 * 8));
+//		}
 
-		//write outputs when hash is found
-		if (h0 == hash2Crack0 && h1 == hash2Crack2 && h2 == hash2Crack2
-				&& h3 == hash2Crack3) {
-			msgColl = hw;
-		}
+		signature[0] = h0;
+		signature[1] = h1;
+		signature[2] = h2;
+		signature[3] = h3;
+//		//write outputs when hash is found
+//		if (h0 == hash2Crack0 && h1 == hash2Crack2 && h2 == hash2Crack2
+//				&& h3 == hash2Crack3) {
+//			msgColl = hw;
+//		}
 	}
 }
 

@@ -3,12 +3,14 @@
 #include <iostream>
 
 #include "hashtest.h"
+#include "main.h"
 
 #define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
 #define G(x, y, z) (((x) & (y)) | ((x) & (z)) | ((y) & (z)))
 
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 #define ROTATE_RIGHT(x, n) (((x) >> (n)) | ((x) << (32-(n))))
+
 
 
 // helper methods to adjust the state variables
@@ -102,23 +104,26 @@ void printArray(uint8_t message[64]){
 	}
 	std::cout << std::endl;
 }
-void gen_probable_collision(){
-    uint8_t m[64] = {0xa6, 0xaf, 0x94, 0x3c, 0xe3, 0x6f, 0x0c,0xf4,0xad,0xcb,0x12,0xbe,0xf7, 0xf0, 0xdc, 0x1f, 0x52, 0x6d, 0xd9, 0x14, 0xbd, 0x3d, 0xa3, 0xca, 0xfd, 0xe1, 0x44, 0x67, 0xab, 0x12, 0x9e, 0x64, 0x0b, 0x4c, 0x41, 0x81, 0x99, 0x15, 0xcb, 0x43, 0xdb, 0x75, 0x21, 0x55, 0xae, 0x4b, 0x89, 0x5f, 0xc7, 0x1b, 0x9b, 0x0d, 0x38, 0x4d, 0x06, 0xef, 0x31, 0x18, 0xbb, 0xc6, 0x43, 0xae, 0x63, 0x84};
-    uint32_t x[16] = {};//fillxregister
-    fillLittleEndian(x, m);
-    std::cout << "MD4 hash step 1" << std::endl;
-    md4_hasher(x, 0);
+void gen_probable_collision(uint32_t x[16]){
+
+    for(int i =0; i < 16 ;i++){
+    	x[i] = rand_int();
+    }
+
+    	// fillLittleEndian(x, m);
+    // md4_hasher(x, 0);
 
     uint32_t h[4] = {0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476};
 
     uint8_t constraintType[96] = {EQUAL,ZERO,EQUAL,EQUAL,ONE,ONE,ZERO,EQUAL,ONE,ZERO,ZERO,ZERO,ONE,ONE,ZERO,EQUAL,ZERO,EQUAL,EQUAL,EQUAL,EQUAL,ONE,EQUAL,ZERO,EQUAL,ZERO,ZERO,ONE,ZERO,ONE,ONE,ZERO,EQUAL,ZERO,ZERO,ZERO,ZERO,ONE,ONE,ONE,ZERO,ZERO,ZERO,ZERO,EQUAL,ONE,EQUAL,ONE,ONE,ONE,ZERO,ZERO,ONE,ONE,ZERO,ONE,EQUAL,ONE,ZERO,ZERO,ZERO,ZERO,ZERO,ONE,EQUAL,ZERO,ONE,ONE,EQUAL,ONE,ZERO,ZERO,ZERO,ZERO,EQUAL,EQUAL,ONE,ZERO,ZERO,ZERO,ONE,ONE,ZERO,ONE,EQUAL,ONE,ONE,ZERO,ZERO,ZERO,ZERO,EQUAL,ONE,ONE,ZERO,EQUAL};
-	
     uint8_t value[96] = {6,6,7,10,6,7,10,25,6,7,10,25,7,10,25,13,13,18,19,20,21,25,12,13,14,18,19,20,21,12,13,14,16,18,19,20,21,12,13,14,16,18,19,20,22,21,25,12,13,14,16,19,20,21,22,25,29,16,19,20,21,22,25,29,31,19,20,21,22,25,29,31,22,25,26,28,29,31,22,25,26,28,29,31,18,22,25,26,28,29,18,25,26,28,29,31 };
+
     uint8_t lengths[16] = {1, 3, 4, 4, 4, 6, 7, 8, 10, 10, 8, 7, 6, 6, 6, 6};
     uint8_t rotations[4] = {3, 7, 11, 19};
 
     uint32_t v = 0;
     uint8_t start = 0;
+
     for(int i = 0; i < 16; i++){
         uint8_t index = 16-i;
         uint8_t test = index % 4;
@@ -154,15 +159,16 @@ void gen_probable_collision(){
     uint32_t a1prime = md4_compress(a0,b0,c0,d0, tmp, 0);
     uint32_t a1 = md4_compress(a0,b0,c0,d0, x, 0);
     uint32_t d1 = md4_compress(d0,a1,b0,c0, x, 1);
+    uint32_t c1 = md4_compress(c0,d1,a1,b0, x, 2);
+    uint32_t b1 = md4_compress(b0,c1,d1,a1, x, 3);
+    uint32_t a2 = md4_compress(a1,b1,c1,d1, x, 4);
+
 
     x[0] = q;
     q = x[1];
     x[1] = (ROTATE_RIGHT(d1,  7) - d0 - F(a1prime, b0, c0));
-    uint32_t c1 = md4_compress(c0,d1,a1,b0, x, 2);
     x[2] = (ROTATE_RIGHT(c1, 11) - c0 - F(d1, a1prime, b0));
-    uint32_t b1 = md4_compress(b0,c1,d1,a1, x, 3);
     x[3] = (ROTATE_RIGHT(b1, 19) - b0 - F(c1, d1, a1prime));
-    uint32_t a2 = md4_compress(a1,b1,c1,d1, x, 4);
     x[4] = (ROTATE_RIGHT(a2,  3) - a1prime - F(b1, c1, d1));
 
     h[0] = ax;
@@ -182,43 +188,67 @@ void gen_probable_collision(){
     c = md4_compress(c,d,a,b, x, 2);
     b = md4_compress(b,c,d,a, x, 3);
 
-
     tmp[4] = q;
     uint32_t a2prime = md4_compress(a,b,c,d, tmp, 4);
     a2 = md4_compress(a,b,c,d, x, 4);
     uint32_t d2 = md4_compress(d,a2,b,c, x, 5);
+    uint32_t c2 = md4_compress(c,d2,a2,b, x, 6);
+    uint32_t b2 = md4_compress(b,c2,d2,a2, x, 7);
+    uint32_t a3 = md4_compress(a2,b2,c2,d2, x, 8);
+
+
     x[4] = q;
     x[5] = (ROTATE_RIGHT(d2,  7) - d - F(a2prime, b, c));
-    // print('BBB {} --> {} ({})'.format(q, x[1], 'Changed' if q != x[1] else 'Same'))
-    uint32_t c2 = md4_compress(c,d2,a2,b, x, 6);
     x[6] = (ROTATE_RIGHT(c2, 11) - c - F(d2, a2prime, b));
-    uint32_t b2 = md4_compress(b,c2,d2,a2, x, 7);
     x[7] = (ROTATE_RIGHT(b2, 19) - b - F(c2, d2, a2prime));
-    uint32_t a3 = md4_compress(a2,b2,c2,d2, x, 8);
     x[8] = (ROTATE_RIGHT(a3,  3) - a2prime - F(b2, c2, d2));
-    UnravelLittleEndian(x, m);
 
-    uint32_t xprime[16] = {0};
-    
+}
+
+void createAdaptedMessage(uint32_t x[16], uint32_t xprime[16]){
+
     for(int i = 0; i < 16; i++){
         xprime[i] = x[i];
     }
+
     xprime[1] = (xprime[1] + (1 << 31));
     xprime[2] = (xprime[2] + ((1 << 31) - (1 << 28)));
     xprime[12] = (xprime[12] - (1 << 16));
 
-    md4_hasher(xprime, 0);
-    md4_hasher(x, 0);
+}
 
-    uint8_t mprime[64];
-    UnravelLittleEndian(xprime, mprime);
-    std::cout << "Differential st00f" << std::endl;
-    printArray(m);
-    printArray(mprime);
+bool hashit(uint32_t x[16], uint32_t xprime[16]){
+
+	if (x[0] != 0){
+	uint32_t signaturePrime[4] = {0x67452301,0xefcdab89, 0x98badcfe, 0x10325476};
+	uint32_t signatureX[4] = {0x67452301,0xefcdab89, 0x98badcfe, 0x10325476};
+	uint32_t messagex[16] = {0};
+
+    md4_hasher(xprime, signaturePrime, 0);
+    md4_hasher(x, signatureX, 0);
+
+    if (signaturePrime[0] == signatureX[0] && signaturePrime[1] == signatureX[1] && signaturePrime[2] == signatureX[2]&& signaturePrime[3] == signatureX[3]) {
+    	std::cout << std::endl;
+    	std::cout << "Match found " << std::endl;
+        printf("%08x%08x%08x%08x\n",signaturePrime[0] , signaturePrime[1] , signaturePrime[2] ,signaturePrime[3] );
+
+    	return true;
+    }
+	}
+	return false;
 
 }
 
-int main(){
-    gen_probable_collision();
+int test(){
+#pragma HLS INTERFACE s_axilite port=return
+
+	uint32_t xprime[16] = {0};
+	uint32_t x[16] = {};//fillxregister
+
+	while(!hashit(x, xprime)){
+		gen_probable_collision(x);
+		createAdaptedMessage(x, xprime);
+	}
+
     return 0;
 }
