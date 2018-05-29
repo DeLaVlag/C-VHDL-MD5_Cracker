@@ -3,9 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#define MAX64 18446744073709551615
-
-unsigned int C_S_AXI_AXILITES_ADDR_WIDTH = 7;
+#define HWUNITS 2
 
 uint32_t rand_int (void);
 uint32_t need_seed (void);
