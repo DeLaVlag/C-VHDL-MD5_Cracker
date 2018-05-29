@@ -5,5 +5,4 @@
 
 #define HWUNITS 2
 
-uint32_t rand_int (void);
-uint32_t need_seed (void);
+uint32_t rand_int (int rnd_seed);

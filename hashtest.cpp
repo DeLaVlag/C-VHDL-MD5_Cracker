@@ -4,8 +4,8 @@
 
 int main() {
 
-	uint32_t output[HWUNITS][16];
-	uint8_t msgColl;
-	md4_hasher(output, msgColl);
+	uint32_t output[16];
+	uint8_t msgC;
+	md5_hasher(output, msgC);
 
 }

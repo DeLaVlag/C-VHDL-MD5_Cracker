@@ -3,6 +3,4 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HWUNITS 2
-
-void md4_hasher(uint32_t output[HWUNITS][16],uint8_t msgColl);
+void md5_hasher(uint32_t output[16],uint8_t msgC);
