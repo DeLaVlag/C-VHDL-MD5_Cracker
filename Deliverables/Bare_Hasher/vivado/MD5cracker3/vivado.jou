@@ -1,0 +1,19 @@
+#-----------------------------------------------------------
+# Vivado v2017.4 (64-bit)
+# SW Build 2086221 on Fri Dec 15 20:55:39 MST 2017
+# IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
+# Start of session at: Fri Jul  6 11:20:00 2018
+# Process ID: 7408
+# Current directory: C:/Users/Michiel/AppData/Roaming/Xilinx/Vivado
+# Command line: vivado.exe
+# Log file: C:/Users/Michiel/AppData/Roaming/Xilinx/Vivado/vivado.log
+# Journal file: C:/Users/Michiel/AppData/Roaming/Xilinx/Vivado\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project D:/Studie/HackLab/OwnMD5/MD5cracker_noHLS/MD5cracker3/MD5cracker3.xpr
+open_bd_design {D:/Studie/HackLab/OwnMD5/MD5cracker_noHLS/MD5cracker3/MD5cracker3.srcs/sources_1/bd/md5cracker/md5cracker.bd}
+update_compile_order -fileset sources_1
+archive_project D:/Studie/HackLab/Report/Deliverables/vivado/MD5cracker3.xpr.zip -temp_dir C:/Users/Michiel/AppData/Roaming/Xilinx/Vivado/.Xil/Vivado-7408-Chill -force -include_local_ip_cache -include_config_settings
+archive_project D:/Studie/HackLab/OwnMD5/MD5cracker_noHLS/MD5cracker3.xpr.zip -temp_dir C:/Users/Michiel/AppData/Roaming/Xilinx/Vivado/.Xil/Vivado-7408-Chill -force
+archive_project D:/Studie/HackLab/Report/Deliverables/vivado/MD5cracker3.xpr.zip -temp_dir C:/Users/Michiel/AppData/Roaming/Xilinx/Vivado/.Xil/Vivado-7408-Chill -force
+archive_project D:/Studie/HackLab/Report/Deliverables/vivado/MD5cracker3.xpr.zip -temp_dir C:/Users/Michiel/AppData/Roaming/Xilinx/Vivado/.Xil/Vivado-7408-Chill -force -exclude_run_results

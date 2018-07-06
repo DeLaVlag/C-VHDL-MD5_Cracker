@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xd:acceleratorMap xmlns:xd="http://www.xilinx.com/xidane" xd:functionName="md5_hasher" xd:componentRef="md5_hasher" xd:initiationInterval="765" xd:clockPeriod="3.000" xd:sequential="true" xd:hostMachine="64" xd:reset="control">
+  <xd:controlReg xd:name="control" xd:interfaceRef="s_axi_AXILiteS" xd:busTypeRef="axilite" xd:type="generic_axi_lite" xd:offset="0x0"/>
+  <xd:arg xd:name="x[]" xd:originalName="x" xd:direction="inout" xd:interfaceRef="s_axi_AXILiteS" xd:busTypeRef="axilite" xd:offset="0x40" xd:arraySize="16" xd:dataWidth="32"/>
+  <xd:arg xd:name="msgC" xd:originalName="msgC" xd:direction="in" xd:interfaceRef="s_axi_AXILiteS" xd:busTypeRef="axilite" xd:offset="0x80" xd:handshakeRef="ap_none" xd:dataWidth="8"/>
+  <xd:latencyEstimates xd:best-case="764" xd:worst-case="764" xd:average-case="764"/>
+  <xd:resourceEstimates xd:LUT="2328" xd:FF="2178" xd:BRAM="3" xd:DSP="12"/>
+</xd:acceleratorMap>
