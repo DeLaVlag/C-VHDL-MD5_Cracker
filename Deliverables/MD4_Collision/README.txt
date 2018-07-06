@@ -1,10 +1,10 @@
 ### Vivado HLS files ###
 Testbench files:
-	hashtest.cpp
-	hashtest.h
+	hashtest.cpp		Testbench file to test the differential.
+	hashtest.h		
 Source Files:
-	differential.cpp
-	rfc1320.cpp
+	differential.cpp	Creates a collision block
+	rfc1320.cpp		MD4 algorithm
 	main.h
 
 Clock period 15 ns.
